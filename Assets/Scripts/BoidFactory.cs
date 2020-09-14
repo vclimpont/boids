@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoidManager : MonoBehaviour
+public class BoidFactory : MonoBehaviour
 {
     [SerializeField] GameObject boidPrefab = null;
     [SerializeField] private int numberOfBoids = 0;
@@ -17,7 +17,7 @@ public class BoidManager : MonoBehaviour
     {
         for(int i = 0; i < numberOfBoids; i++)
         {
-            Boid boid = Instantiate(boidPrefab, Vector2.zero, Quaternion.identity).GetComponent<Boid>();
+            Boid boid = Instantiate(boidPrefab, Vector2.zero, Quaternion.identity).GetComponent<Boid>(); // Instantiate a new boid
 
             float rpx = Random.Range(-10f, 10f);
             float rpy = Random.Range(-10f, 10f);
@@ -25,7 +25,7 @@ public class BoidManager : MonoBehaviour
             float rvy = Random.Range(-1f, 1f);
             float rs = Random.Range(0f, 4f);
 
-            boid.Initialize(rs, new Vector2(rpx, rpy), new Vector2(rvx, rvy));
+            boid.Initialize(rs, new Vector2(rpx, rpy), new Vector2(rvx, rvy), 1f); // Set random position and random velocity
         }
     }
 

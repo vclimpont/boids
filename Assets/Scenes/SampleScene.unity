@@ -160,7 +160,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ad75014ebf61d45bf4672c09c20b1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -229,7 +228,7 @@ GameObject:
   - component: {fileID: 1946542318}
   - component: {fileID: 1946542317}
   m_Layer: 0
-  m_Name: BoidManager
+  m_Name: BoidFactory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -249,7 +248,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 855228577228073227, guid: f1f83be48abc21f43b337b439d0f6ad2,
     type: 3}
-  numberOfBoids: 10
+  numberOfBoids: 50
 --- !u!4 &1946542318
 Transform:
   m_ObjectHideFlags: 0
