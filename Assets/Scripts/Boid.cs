@@ -8,7 +8,10 @@ public class Boid : MonoBehaviour
     private BoidFactory bfactory;
 
     private float speed;
+
     private bool initialized = false;
+    private int boidLayer;
+
 
     public void Initialize(float speed, Vector2 pos, Vector2 dir, BoidFactory bfactory)
     {
@@ -29,16 +32,24 @@ public class Boid : MonoBehaviour
             LimitVelocity();
 
 
-            MoveWith();
+            ApplyRules();
             BoundVelocity();
         }
     }
 
-    void MoveWith()
+    void ApplyRules()
     {
-        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, bfactory.GetRange());
-        float size = 0f;
+        boidLayer = 1 << LayerMask.NameToLayer("Boid"); 
+        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, bfactory.GetRange(), boidLayer);
 
+        MoveWith(closeBoids);
+        MoveTowardsCenter(closeBoids);
+        AvoidObstacles(closeBoids);
+    }
+
+    void MoveWith(Collider2D[] closeBoids)
+    {
+        float size = 0f;
         Vector2 avgVelocity = Vector2.zero;
 
         for(int i = 0; i < closeBoids.Length; i++)
@@ -54,7 +65,59 @@ public class Boid : MonoBehaviour
         if(size > 0)
         {
             avgVelocity /= size;
-            rb.velocity += (avgVelocity * (1f/8f));
+            rb.velocity += (avgVelocity * (bfactory.GetAlignmentFactor() / 10.0f));
+        }
+    }
+
+    void MoveTowardsCenter(Collider2D[] closeBoids)
+    {
+        float size = 0f;
+        Vector2 avgPosition = Vector2.zero;
+
+        for (int i = 0; i < closeBoids.Length; i++)
+        {
+            Boid boid = closeBoids[i].GetComponent<Boid>();
+            if (boid != this)
+            {
+                avgPosition += boid.GetPosition();
+                size++;
+            }
+        }
+
+        if (size > 0)
+        {
+            avgPosition /= size;
+
+            Vector2 targetPosition = avgPosition - (Vector2)transform.position;
+            targetPosition = targetPosition.normalized;
+
+            rb.velocity += (targetPosition * speed * (bfactory.GetCohesionFactor() / 10.0f));
+        }
+    }
+
+    void AvoidObstacles(Collider2D[] closeBoids)
+    {
+        float size = 0f;
+        Vector2 avgPosition = Vector2.zero;
+
+        for (int i = 0; i < closeBoids.Length; i++)
+        {
+            Boid boid = closeBoids[i].GetComponent<Boid>();
+            if (boid != this)
+            {
+                avgPosition += boid.GetPosition();
+                size++;
+            }
+        }
+
+        if (size > 0)
+        {
+            avgPosition /= size;
+
+            Vector2 targetPosition = (Vector2)transform.position - avgPosition;
+            targetPosition = targetPosition.normalized;
+
+            rb.velocity += (targetPosition * speed * (bfactory.GetSeparationFactor() / 10.0f));
         }
     }
 
@@ -95,10 +158,17 @@ public class Boid : MonoBehaviour
         return rb.velocity;
     }
 
+    public Vector2 GetPosition()
+    {
+        return transform.position;
+    }
 
-    //void OnDrawGizmos()
-    //{
-    //    Gizmos.DrawWireSphere(transform.position, bfactory.GetRange());
-    //}
+    void OnDrawGizmos()
+    {
+        if(initialized)
+        {
+            Gizmos.DrawWireSphere(transform.position, bfactory.GetRange());
+        }
+    }
 
 }

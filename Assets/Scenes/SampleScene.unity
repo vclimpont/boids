@@ -248,10 +248,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 855228577228073227, guid: f1f83be48abc21f43b337b439d0f6ad2,
     type: 3}
-  numberOfBoids: 150
+  numberOfBoids: 50
   range: 1
   maxVelocity: 7
-  velLimitFactor: 0.5
+  velLimitFactor: 0.45
   boundX: 10
   boundY: 6
 --- !u!4 &1946542318
