@@ -251,7 +251,10 @@ MonoBehaviour:
   numberOfBoids: 50
   range: 1
   maxVelocity: 7
-  velLimitFactor: 0.45
+  velLimitFactor: 0.701
+  separationFactor: 0.51
+  alignmentFactor: 0
+  cohesionFactor: 0
   boundX: 10
   boundY: 6
 --- !u!4 &1946542318

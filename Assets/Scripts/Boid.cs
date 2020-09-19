@@ -30,7 +30,7 @@ public class Boid : MonoBehaviour
         if(initialized)
         {
             LimitVelocity();
-
+            Debug.DrawLine(transform.position, (Vector2)transform.position + (rb.velocity.normalized * 0.5f), Color.white);
 
             ApplyRules();
             BoundVelocity();
@@ -40,11 +40,11 @@ public class Boid : MonoBehaviour
     void ApplyRules()
     {
         boidLayer = 1 << LayerMask.NameToLayer("Boid"); 
-        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, bfactory.GetRange(), boidLayer);
+        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, bfactory.GetRange(), boidLayer);   // Get all boids in the range
 
         MoveWith(closeBoids);
         MoveTowardsCenter(closeBoids);
-        AvoidObstacles(closeBoids);
+        MoveAway(closeBoids);
     }
 
     void MoveWith(Collider2D[] closeBoids)
@@ -52,12 +52,12 @@ public class Boid : MonoBehaviour
         float size = 0f;
         Vector2 avgVelocity = Vector2.zero;
 
-        for(int i = 0; i < closeBoids.Length; i++)
+        for(int i = 0; i < closeBoids.Length; i++)          // For every close boid
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
             if(boid != this)
             {
-                avgVelocity += boid.GetVelocity();
+                avgVelocity += boid.GetVelocity();          // Calculate average velocity
                 size++;
             }
         }
@@ -65,7 +65,7 @@ public class Boid : MonoBehaviour
         if(size > 0)
         {
             avgVelocity /= size;
-            rb.velocity += (avgVelocity * (bfactory.GetAlignmentFactor() / 10.0f));
+            rb.velocity += (avgVelocity * (bfactory.GetAlignmentFactor() / 10.0f));     // Add an amount of average velocity calculated to the current velocity 
         }
     }
 
@@ -74,12 +74,12 @@ public class Boid : MonoBehaviour
         float size = 0f;
         Vector2 avgPosition = Vector2.zero;
 
-        for (int i = 0; i < closeBoids.Length; i++)
+        for (int i = 0; i < closeBoids.Length; i++)         // For every close boid
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
             if (boid != this)
             {
-                avgPosition += boid.GetPosition();
+                avgPosition += boid.GetPosition();          // Calculate average position
                 size++;
             }
         }
@@ -88,36 +88,35 @@ public class Boid : MonoBehaviour
         {
             avgPosition /= size;
 
-            Vector2 targetPosition = avgPosition - (Vector2)transform.position;
+            Vector2 targetPosition = avgPosition - (Vector2)transform.position;        // Get the direction from current position to the average position calculated and normalize it
             targetPosition = targetPosition.normalized;
 
-            rb.velocity += (targetPosition * speed * (bfactory.GetCohesionFactor() / 10.0f));
+            rb.velocity += targetPosition * (bfactory.GetCohesionFactor() / 10.0f);   // Add an amount of 
         }
     }
 
-    void AvoidObstacles(Collider2D[] closeBoids)
+    void MoveAway(Collider2D[] closeBoids)
     {
-        float size = 0f;
-        Vector2 avgPosition = Vector2.zero;
+        float theta = Mathf.Deg2Rad * 45f;
+
+        float cs = Mathf.Cos(theta);
+        float sn = Mathf.Sin(theta);
 
         for (int i = 0; i < closeBoids.Length; i++)
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
             if (boid != this)
             {
-                avgPosition += boid.GetPosition();
-                size++;
+                Vector2 targetPosition = (Vector2)transform.position - boid.GetPosition();
+                targetPosition = targetPosition.normalized;
+                //Debug.DrawLine(transform.position, boid.GetPosition(), Color.red, 0.1f);
+
+                float px = targetPosition.x * cs - targetPosition.y * sn;
+                float py = targetPosition.x * sn + targetPosition.y * cs;
+
+                Vector2 dir = new Vector2(px, py);
+                rb.velocity += dir * (bfactory.GetSeparationFactor() / 10.0f);
             }
-        }
-
-        if (size > 0)
-        {
-            avgPosition /= size;
-
-            Vector2 targetPosition = (Vector2)transform.position - avgPosition;
-            targetPosition = targetPosition.normalized;
-
-            rb.velocity += (targetPosition * speed * (bfactory.GetSeparationFactor() / 10.0f));
         }
     }
 
@@ -134,22 +133,22 @@ public class Boid : MonoBehaviour
         float boundX = bfactory.GetBoundX();
         float boundY = bfactory.GetBoundY();
 
-        if(transform.position.x <= -boundX)
+        if(transform.position.x < -boundX)
         {
-            rb.velocity = new Vector2(2f, rb.velocity.y);
+            transform.position = new Vector2(boundX, transform.position.y);
         }
-        else if(transform.position.x >= boundX)
+        else if(transform.position.x > boundX)
         {
-            rb.velocity = new Vector2(-2f, rb.velocity.y);
+            transform.position = new Vector2(-boundX, transform.position.y);
         }
 
-        if (transform.position.y <= -boundY)
+        if (transform.position.y < -boundY)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 2f);
+            transform.position = new Vector2(transform.position.x, boundY);
         }
-        else if (transform.position.y >= boundY)
+        else if (transform.position.y > boundY)
         {
-            rb.velocity = new Vector2(rb.velocity.x, -2f);
+            transform.position = new Vector2(transform.position.x, -boundY);
         }
     }
 
@@ -163,12 +162,12 @@ public class Boid : MonoBehaviour
         return transform.position;
     }
 
-    void OnDrawGizmos()
-    {
-        if(initialized)
-        {
-            Gizmos.DrawWireSphere(transform.position, bfactory.GetRange());
-        }
-    }
+    //void OnDrawGizmos()
+    //{
+    //    if(initialized)
+    //    {
+    //        Gizmos.DrawWireSphere(transform.position, bfactory.GetRange());
+    //    }
+    //}
 
 }
