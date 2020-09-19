@@ -109,7 +109,6 @@ public class Boid : MonoBehaviour
             {
                 Vector2 targetPosition = (Vector2)transform.position - boid.GetPosition();
                 targetPosition = targetPosition.normalized;
-                //Debug.DrawLine(transform.position, boid.GetPosition(), Color.red, 0.1f);
 
                 float px = targetPosition.x * cs - targetPosition.y * sn;
                 float py = targetPosition.x * sn + targetPosition.y * cs;
