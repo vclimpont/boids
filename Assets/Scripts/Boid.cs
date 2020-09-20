@@ -134,13 +134,13 @@ public class Boid : MonoBehaviour
 
     void AvoidObstacle()
     {
-        float theta_p =  Mathf.PI / 6f;
-        float theta_m = -Mathf.PI / 6f;
+        float theta_p =  Mathf.PI / 15f;
+        float theta_m = -Mathf.PI / 15f;
 
-        for (int i = 0; i <= 6; i++)
+        for (int i = 0; i <= 15; i++)
         {
             Vector2 dir = rb.velocity.normalized;
-            Vector2 dirToCast = Vector2.zero;
+            Vector2 dirToCast;
 
             dirToCast = CastRay(theta_p * i, dir);
             if (dirToCast != Vector2.zero)
