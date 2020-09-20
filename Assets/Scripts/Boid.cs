@@ -134,32 +134,52 @@ public class Boid : MonoBehaviour
 
     void AvoidObstacle()
     {
-        float theta_p = 2f * Mathf.PI / 12f;
+        float theta_p =  Mathf.PI / 6f;
         float theta_m = -Mathf.PI / 6f;
 
         for (int i = 0; i <= 6; i++)
         {
-            float theta_pi = theta_p * i;
             Vector2 dir = rb.velocity.normalized;
-            float cs = Mathf.Cos(theta_pi);
-            Debug.Log(i + " " + cs);
-            float sn = Mathf.Sin(theta_pi);
+            Vector2 dirToCast = Vector2.zero;
 
-            float px = dir.x * cs - dir.y * sn;
-            float py = dir.x * sn + dir.y * cs;
-            Vector2 dirToCast = new Vector2(px, py);
-
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToCast, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
-
-            if (hit.collider == null)        // If it hits an obstacle
+            dirToCast = CastRay(theta_p * i, dir);
+            if (dirToCast != Vector2.zero)
             {
-                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 1.5f), Color.green, Time.deltaTime);
-                rb.velocity += (dirToCast * rb.velocity.magnitude * 0.05f);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 2f), Color.green, Time.deltaTime);
+                rb.velocity = (dirToCast * rb.velocity.magnitude * 0.5f) + (rb.velocity * 0.3f);
+                break;
             }
-            else
+
+            dirToCast = CastRay(theta_m * i, dir);
+            if (dirToCast != Vector2.zero)
             {
-                Debug.DrawLine(transform.position, hit.point, Color.red, Time.deltaTime);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 2f), Color.green, Time.deltaTime);
+                rb.velocity = (dirToCast * rb.velocity.magnitude * 0.5f) + (rb.velocity * 0.3f);
+                break;
             }
+        }
+    }
+
+
+    Vector2 CastRay(float theta_i, Vector2 dir)
+    {
+        float cs = Mathf.Cos(theta_i);
+        float sn = Mathf.Sin(theta_i);
+
+        float px = dir.x * cs - dir.y * sn;
+        float py = dir.x * sn + dir.y * cs;
+        Vector2 dirToCast = new Vector2(px, py);
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToCast, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
+
+        if (hit.collider == null)        // If it does not hit an obstacle
+        {
+            return dirToCast;
+        }
+        else
+        {
+            Debug.DrawLine(transform.position, hit.point, Color.red, Time.deltaTime);
+            return Vector2.zero;
         }
     }
 
