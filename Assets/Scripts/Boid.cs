@@ -29,8 +29,10 @@ public class Boid : MonoBehaviour
     {
         if(initialized)
         {
-            LimitVelocity();
             Debug.DrawLine(transform.position, (Vector2)transform.position + (rb.velocity.normalized * 0.5f), Color.white);
+            CheckForObstacles();
+
+            LimitVelocity();
 
             ApplyRules();
             BoundVelocity();
@@ -115,6 +117,48 @@ public class Boid : MonoBehaviour
 
                 Vector2 dir = new Vector2(px, py);
                 rb.velocity += dir * (bfactory.GetSeparationFactor() / 10.0f);
+            }
+        }
+    }
+
+    void CheckForObstacles()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, rb.velocity.normalized, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
+
+        if(hit.collider != null)        // If it hits an obstacle
+        {
+            Debug.DrawLine(transform.position, hit.point, Color.red, Time.deltaTime);
+            AvoidObstacle();
+        }
+    }
+
+    void AvoidObstacle()
+    {
+        float theta_p = 2f * Mathf.PI / 12f;
+        float theta_m = -Mathf.PI / 6f;
+
+        for (int i = 0; i <= 6; i++)
+        {
+            float theta_pi = theta_p * i;
+            Vector2 dir = rb.velocity.normalized;
+            float cs = Mathf.Cos(theta_pi);
+            Debug.Log(i + " " + cs);
+            float sn = Mathf.Sin(theta_pi);
+
+            float px = dir.x * cs - dir.y * sn;
+            float py = dir.x * sn + dir.y * cs;
+            Vector2 dirToCast = new Vector2(px, py);
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToCast, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
+
+            if (hit.collider == null)        // If it hits an obstacle
+            {
+                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 1.5f), Color.green, Time.deltaTime);
+                rb.velocity += (dirToCast * rb.velocity.magnitude * 0.05f);
+            }
+            else
+            {
+                Debug.DrawLine(transform.position, hit.point, Color.red, Time.deltaTime);
             }
         }
     }
