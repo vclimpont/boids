@@ -12,6 +12,8 @@ public class Boid : MonoBehaviour
 
     private bool initialized = false;
     private int boidLayer;
+    private PlayerController player;
+
     private bool isShot;
     private bool canSeePlayer;
     private bool canSeeMonster;
@@ -42,12 +44,21 @@ public class Boid : MonoBehaviour
         {
             FlipSprite();
 
-            if (!isShot)
+            switch(currentState)
             {
-                CheckForObstacles();
-                LimitVelocity();
-                ApplyRules();
-                //BoundVelocity();
+                case State.Roam:
+                    CheckForObstacles();
+                    LimitVelocity();
+                    ApplyRules();
+                    //BoundVelocity();
+                    break;
+                case State.Follow:
+                    CheckForObstacles();
+                    LimitVelocity();
+                    ApplyRules();
+                    MoveTowardsPlayer();
+                    break;
+
             }
         }
     }
@@ -272,18 +283,24 @@ public class Boid : MonoBehaviour
         }
     }
 
-    void ResetRoamState()
+    public void StartFollowing(PlayerController player)
     {
-
+        this.player = player;
+        canSeePlayer = true;
     }
 
-    public void MoveTowardsPlayer(Vector2 playerPosition, float attractForce)
+    public void MoveTowardsPlayer()
     {
-        if(!isShot)
+        Vector2 dir = player.GetPosition() - (Vector2)transform.position;
+
+        if(dir.magnitude <= player.GetRange())
         {
-            Vector2 dir = playerPosition - (Vector2)transform.position;
             dir = dir.normalized;
-            rb.velocity += (dir * attractForce);
+            rb.velocity += (dir * player.GetAttractForce());
+        }
+        else
+        {
+            canSeePlayer = false;
         }
     }
 
@@ -292,12 +309,11 @@ public class Boid : MonoBehaviour
         if(!isShot)
         {
             isShot = true;
+            //rb.velocity = Vector2.zero;
+            //float dtForce = shootForce;
+            //float distFromTarget = (direction - (Vector2)transform.position).magnitude; 
 
-            rb.velocity = Vector2.zero;
-            float dtForce = shootForce;
-            float distFromTarget = (direction - (Vector2)transform.position).magnitude; 
-
-            StartCoroutine(ShotTravel(direction, shootForce, dtForce, distFromTarget));
+            //StartCoroutine(ShotTravel(direction, shootForce, dtForce, distFromTarget));
         }
     }
 

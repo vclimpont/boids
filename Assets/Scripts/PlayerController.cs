@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
         for(int i = 0; i < nbBoids; i++)
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
-            boid.MoveTowardsPlayer(transform.position, attractForce);
+            boid.StartFollowing(this);
         }
     }
 
@@ -116,6 +116,21 @@ public class PlayerController : MonoBehaviour
     void FlipSprite()
     {
         sr.flipX = (rb.velocity.x < 0);
+    }
+
+    public Vector2 GetPosition()
+    {
+        return transform.position;
+    }
+
+    public float GetAttractForce()
+    {
+        return attractForce;
+    }
+
+    public float GetRange()
+    {
+        return range;
     }
 
     void OnDrawGizmos()
