@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 0;
     [SerializeField] private float range = 0;
+    [SerializeField] private float attractForce = 0;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -13,6 +14,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDirection;
     private int nbBoids;
     private bool hasShot;
+    private int boidLayer;
+
+    private bool attracting;
 
     // Start is called before the first frame update
     void Start()
@@ -20,8 +24,9 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
 
-        nbBoids = 1;
+        nbBoids = 0;
         hasShot = false;
+        attracting = false;
     }
 
     // Update is called once per frame
@@ -40,6 +45,9 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         FlipSprite();
+
+        AttractBoids();
+        Debug.Log(nbBoids);
     }
 
     void CheckInputsMovement()
@@ -72,6 +80,20 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(moveDirection.x * speed, moveDirection.y * speed);
     }
 
+    void AttractBoids()
+    {
+        boidLayer = 1 << LayerMask.NameToLayer("Boid");
+        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, range, boidLayer);   // Get all boids in the range
+        attracting = true;
+
+        nbBoids = closeBoids.Length;
+        for(int i = 0; i < nbBoids; i++)
+        {
+            Boid boid = closeBoids[i].GetComponent<Boid>();
+            boid.MoveTowardsPlayer(transform.position, attractForce);
+        }
+    }
+
     void ShotBoid()
     {
         Debug.Log("SHROOM");
@@ -80,5 +102,13 @@ public class PlayerController : MonoBehaviour
     void FlipSprite()
     {
         sr.flipX = (rb.velocity.x < 0);
+    }
+
+    void OnDrawGizmos()
+    {
+        if(attracting)
+        {
+            Gizmos.DrawWireSphere(transform.position, range);
+        }
     }
 }

@@ -141,10 +141,10 @@ public class Boid : MonoBehaviour
 
     void AvoidObstacle()
     {
-        float theta_p =  Mathf.PI / 15f;
-        float theta_m = -Mathf.PI / 15f;
+        float theta_p =  Mathf.PI / 8f;
+        float theta_m = -Mathf.PI / 8f;
 
-        for (int i = 0; i <= 15; i++)
+        for (int i = 0; i <= 8; i++)
         {
             Vector2 dir = rb.velocity.normalized;
             Vector2 dirToCast;
@@ -220,6 +220,13 @@ public class Boid : MonoBehaviour
         {
             transform.position = new Vector2(transform.position.x, -boundY);
         }
+    }
+
+    public void MoveTowardsPlayer(Vector2 playerPosition, float attractForce)
+    {
+        Vector2 dir = playerPosition - (Vector2)transform.position;
+        dir = dir.normalized;
+        rb.velocity += (dir * attractForce);
     }
 
     public Vector2 GetVelocity()
