@@ -7319,7 +7319,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 855228577228073227, guid: f1f83be48abc21f43b337b439d0f6ad2,
     type: 3}
-  numberOfBoids: 50
+  numberOfBoids: 1
   range: 1
   maxVelocity: 2.5
   velLimitFactor: 0.701
@@ -7358,6 +7358,11 @@ PrefabInstance:
         type: 3}
       propertyPath: attractForce
       value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3263295935003746125, guid: 7546fc567b4b3ce4ba9ca8c8c0817f98,
+        type: 3}
+      propertyPath: shootForce
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3263295935003746128, guid: 7546fc567b4b3ce4ba9ca8c8c0817f98,
         type: 3}

@@ -12,6 +12,7 @@ public class Boid : MonoBehaviour
 
     private bool initialized = false;
     private int boidLayer;
+    private bool isShot;
 
 
     public void Initialize(float speed, Vector2 pos, Vector2 dir, BoidFactory bfactory)
@@ -24,6 +25,7 @@ public class Boid : MonoBehaviour
         transform.position = pos;
         rb.velocity = dir * speed;
 
+        isShot = false;
         initialized = true;
     }
 
@@ -32,12 +34,14 @@ public class Boid : MonoBehaviour
         if(initialized)
         {
             FlipSprite();
-            CheckForObstacles();
 
-            LimitVelocity();
-
-            ApplyRules();
-            //BoundVelocity();
+            if (!isShot)
+            {
+                CheckForObstacles();
+                LimitVelocity();
+                ApplyRules();
+                //BoundVelocity();
+            }
         }
     }
 
@@ -224,9 +228,35 @@ public class Boid : MonoBehaviour
 
     public void MoveTowardsPlayer(Vector2 playerPosition, float attractForce)
     {
-        Vector2 dir = playerPosition - (Vector2)transform.position;
-        dir = dir.normalized;
-        rb.velocity += (dir * attractForce);
+        if(!isShot)
+        {
+            Vector2 dir = playerPosition - (Vector2)transform.position;
+            dir = dir.normalized;
+            rb.velocity += (dir * attractForce);
+        }
+    }
+
+    public void ShotAt(Vector2 direction, float shootForce)
+    {
+        if(!isShot)
+        {
+            //StartCoroutine(ShotTravel(direction, shootForce));
+            isShot = true;
+            Debug.Log(isShot);
+            rb.velocity = Vector2.zero;
+
+            while ((Vector2)transform.position != direction)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, direction, shootForce * Time.deltaTime);
+            }
+
+            //yield return new WaitForSeconds(0.2f);
+            isShot = false;
+            float rvx = Random.Range(1f, 4f);
+            float rvy = Random.Range(1f, 4f);
+            rb.velocity = new Vector2(rvx, rvy);
+            Debug.Log(isShot);
+        }
     }
 
     public Vector2 GetVelocity()
@@ -237,6 +267,27 @@ public class Boid : MonoBehaviour
     public Vector2 GetPosition()
     {
         return transform.position;
+    }
+
+    IEnumerator ShotTravel(Vector2 dir, float shootForce)
+    {
+        isShot = true;
+        Debug.Log(isShot);
+        rb.velocity = Vector2.zero;
+
+        while((Vector2)transform.position != dir)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, dir, shootForce * Time.deltaTime);
+        }
+
+        //yield return new WaitForSeconds(0.2f);
+        isShot = false;
+        float rvx = Random.Range(1f, 4f);
+        float rvy = Random.Range(1f, 4f);
+        rb.velocity = new Vector2(rvx, rvy);
+        Debug.Log(isShot);
+
+        yield return null;
     }
 
     //void OnDrawGizmos()

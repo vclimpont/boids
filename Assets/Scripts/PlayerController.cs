@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed = 0;
     [SerializeField] private float range = 0;
     [SerializeField] private float attractForce = 0;
+    [SerializeField] private float shootForce = 0;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -15,6 +16,8 @@ public class PlayerController : MonoBehaviour
     private int nbBoids;
     private bool hasShot;
     private int boidLayer;
+    private Collider2D[] closeBoids;
+    private Vector2 shotPosition;
 
     private bool attracting;
 
@@ -47,7 +50,6 @@ public class PlayerController : MonoBehaviour
         FlipSprite();
 
         AttractBoids();
-        Debug.Log(nbBoids);
     }
 
     void CheckInputsMovement()
@@ -63,11 +65,19 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             hasShot = true;
+            SetShotPosition();
         }
         else
         {
             hasShot = false;
         }
+    }
+
+    void SetShotPosition()
+    {
+        Vector2 mp = Input.mousePosition;
+        mp = Camera.main.ScreenToWorldPoint(mp);
+        shotPosition = mp;
     }
 
     bool CanShot()
@@ -83,7 +93,7 @@ public class PlayerController : MonoBehaviour
     void AttractBoids()
     {
         boidLayer = 1 << LayerMask.NameToLayer("Boid");
-        Collider2D[] closeBoids = Physics2D.OverlapCircleAll(transform.position, range, boidLayer);   // Get all boids in the range
+        closeBoids = Physics2D.OverlapCircleAll(transform.position, range, boidLayer);   // Get all boids in the range
         attracting = true;
 
         nbBoids = closeBoids.Length;
@@ -96,7 +106,11 @@ public class PlayerController : MonoBehaviour
 
     void ShotBoid()
     {
-        Debug.Log("SHROOM");
+        Boid boid = closeBoids[0].GetComponent<Boid>();
+
+        Vector2 dir = shotPosition - (Vector2)transform.position;
+        dir = dir.normalized;
+        boid.ShotAt(shotPosition, shootForce);
     }
 
     void FlipSprite()
