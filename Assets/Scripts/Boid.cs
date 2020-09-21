@@ -6,6 +6,7 @@ public class Boid : MonoBehaviour
 {
     private Rigidbody2D rb;
     private BoidFactory bfactory;
+    private SpriteRenderer sr;
 
     private float speed;
 
@@ -16,6 +17,7 @@ public class Boid : MonoBehaviour
     public void Initialize(float speed, Vector2 pos, Vector2 dir, BoidFactory bfactory)
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
         this.bfactory = bfactory;
         this.speed = speed;
 
@@ -29,7 +31,7 @@ public class Boid : MonoBehaviour
     {
         if(initialized)
         {
-            Debug.DrawLine(transform.position, (Vector2)transform.position + (rb.velocity.normalized * 0.5f), Color.white);
+            FlipSprite();
             CheckForObstacles();
 
             LimitVelocity();
@@ -37,6 +39,11 @@ public class Boid : MonoBehaviour
             ApplyRules();
             BoundVelocity();
         }
+    }
+
+    void FlipSprite()
+    {
+        sr.flipX = (rb.velocity.x < 0);
     }
 
     void ApplyRules()
@@ -123,7 +130,7 @@ public class Boid : MonoBehaviour
 
     void CheckForObstacles()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, rb.velocity.normalized, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, rb.velocity.normalized, bfactory.GetRange() * 3f, LayerMask.GetMask("Obstacle"));
 
         if(hit.collider != null)        // If it hits an obstacle
         {
@@ -145,16 +152,16 @@ public class Boid : MonoBehaviour
             dirToCast = CastRay(theta_p * i, dir);
             if (dirToCast != Vector2.zero)
             {
-                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 2f), Color.green, Time.deltaTime);
-                rb.velocity = (dirToCast * rb.velocity.magnitude * 0.5f) + (rb.velocity * 0.3f);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 3f), Color.green, Time.deltaTime);
+                rb.velocity = dirToCast * rb.velocity.magnitude;// * 0.7f) + (rb.velocity * 0.3f);
                 break;
             }
 
             dirToCast = CastRay(theta_m * i, dir);
             if (dirToCast != Vector2.zero)
             {
-                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 2f), Color.green, Time.deltaTime);
-                rb.velocity = (dirToCast * rb.velocity.magnitude * 0.5f) + (rb.velocity * 0.3f);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + (dirToCast * bfactory.GetRange() * 3f), Color.green, Time.deltaTime);
+                rb.velocity = dirToCast * rb.velocity.magnitude;// * 0.7f) + (rb.velocity * 0.3f);
                 break;
             }
         }
@@ -170,7 +177,7 @@ public class Boid : MonoBehaviour
         float py = dir.x * sn + dir.y * cs;
         Vector2 dirToCast = new Vector2(px, py);
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToCast, bfactory.GetRange() * 1.5f, LayerMask.GetMask("Obstacle"));
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToCast, bfactory.GetRange() * 3f, LayerMask.GetMask("Obstacle"));
 
         if (hit.collider == null)        // If it does not hit an obstacle
         {
