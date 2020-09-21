@@ -37,7 +37,7 @@ public class Boid : MonoBehaviour
             LimitVelocity();
 
             ApplyRules();
-            BoundVelocity();
+            //BoundVelocity();
         }
     }
 
