@@ -14,6 +14,9 @@ public class Boid : MonoBehaviour
     private int boidLayer;
     private bool isShot;
 
+    private enum State { Roam, Follow, Evade, Shot};
+    private State currentState;
+
 
     public void Initialize(float speed, Vector2 pos, Vector2 dir, BoidFactory bfactory)
     {
@@ -24,6 +27,7 @@ public class Boid : MonoBehaviour
 
         transform.position = pos;
         rb.velocity = dir * speed;
+        currentState = State.Roam;
 
         isShot = false;
         initialized = true;
@@ -45,9 +49,19 @@ public class Boid : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        CheckState();
+    }
+
     void FlipSprite()
     {
         sr.flipX = (rb.velocity.x < 0);
+    }
+
+    void CheckState()
+    {
+
     }
 
     void ApplyRules()
@@ -226,6 +240,11 @@ public class Boid : MonoBehaviour
         }
     }
 
+    void ResetRoamState()
+    {
+
+    }
+
     public void MoveTowardsPlayer(Vector2 playerPosition, float attractForce)
     {
         if(!isShot)
@@ -240,22 +259,13 @@ public class Boid : MonoBehaviour
     {
         if(!isShot)
         {
-            //StartCoroutine(ShotTravel(direction, shootForce));
             isShot = true;
-            Debug.Log(isShot);
+
             rb.velocity = Vector2.zero;
+            float dtForce = shootForce;
+            float distFromTarget = (direction - (Vector2)transform.position).magnitude; 
 
-            while ((Vector2)transform.position != direction)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, direction, shootForce * Time.deltaTime);
-            }
-
-            //yield return new WaitForSeconds(0.2f);
-            isShot = false;
-            float rvx = Random.Range(1f, 4f);
-            float rvy = Random.Range(1f, 4f);
-            rb.velocity = new Vector2(rvx, rvy);
-            Debug.Log(isShot);
+            StartCoroutine(ShotTravel(direction, shootForce, dtForce, distFromTarget));
         }
     }
 
@@ -269,18 +279,19 @@ public class Boid : MonoBehaviour
         return transform.position;
     }
 
-    IEnumerator ShotTravel(Vector2 dir, float shootForce)
+    IEnumerator ShotTravel(Vector2 dir, float shootForce, float dtForce, float distFromTarget)
     {
-        isShot = true;
-        Debug.Log(isShot);
-        rb.velocity = Vector2.zero;
-
-        while((Vector2)transform.position != dir)
+        float dst;
+        do
         {
-            transform.position = Vector2.MoveTowards(transform.position, dir, shootForce * Time.deltaTime);
-        }
 
-        //yield return new WaitForSeconds(0.2f);
+            transform.position = Vector2.MoveTowards(transform.position, dir, dtForce * Time.deltaTime);
+            dst = (dir - (Vector2)transform.position).magnitude / distFromTarget;
+            dtForce = shootForce * dst;
+            yield return null;
+        } while (dst > 0.1f);
+
+
         isShot = false;
         float rvx = Random.Range(1f, 4f);
         float rvy = Random.Range(1f, 4f);
@@ -289,6 +300,9 @@ public class Boid : MonoBehaviour
 
         yield return null;
     }
+
+
+    
 
     //void OnDrawGizmos()
     //{
