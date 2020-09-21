@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoidFactory : MonoBehaviour
+public class BoidFactory3D : MonoBehaviour
 {
     [SerializeField] GameObject boidPrefab = null;
     [SerializeField] private int numberOfBoids = 0;
@@ -25,6 +25,7 @@ public class BoidFactory : MonoBehaviour
     [Header("Scene Limits")]
     [SerializeField] private float boundX = 0;
     [SerializeField] private float boundY = 0;
+    [SerializeField] private float boundZ = 0;
 
 
     // Start is called before the first frame update
@@ -35,24 +36,26 @@ public class BoidFactory : MonoBehaviour
 
     void GenerateBoids()
     {
-        for(int i = 0; i < numberOfBoids; i++)
+        for (int i = 0; i < numberOfBoids; i++)
         {
-            Boid boid = Instantiate(boidPrefab, Vector2.zero, Quaternion.identity).GetComponent<Boid>(); // Instantiate a new boid
+            Boid3D boid = Instantiate(boidPrefab, Vector3.zero, Quaternion.identity).GetComponent<Boid3D>(); // Instantiate a new boid
 
             float rpx = Random.Range(-10f, 10f);    // position x
             float rpy = Random.Range(-10f, 10f);    // position y
+            float rpz = Random.Range(-10f, 10f);    // position z
             float rvx = Random.Range(-1f, 1f);      // direction x
-            float rvy = Random.Range(-1f, 1f);      // direction y 
+            float rvy = Random.Range(-1f, 1f);      // direction y
+            float rvz = Random.Range(-1f, 1f);      // direction z
             float rs = Random.Range(1f, 4f);        // speed
 
-            boid.Initialize(rs, new Vector2(rpx, rpy), new Vector2(rvx, rvy), this); // Set random position and random velocity
+            boid.Initialize(rs, new Vector3(rpx, rpy, rpz), new Vector3(rvx, rvy, rvz), this); // Set random position and random velocity
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public float GetRange()
@@ -93,5 +96,10 @@ public class BoidFactory : MonoBehaviour
     public float GetBoundY()
     {
         return boundY;
+    }
+
+    public float GetBoundZ()
+    {
+        return boundZ;
     }
 }
