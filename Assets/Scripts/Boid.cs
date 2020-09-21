@@ -13,6 +13,8 @@ public class Boid : MonoBehaviour
     private bool initialized = false;
     private int boidLayer;
     private bool isShot;
+    private bool canSeePlayer;
+    private bool canSeeMonster;
 
     private enum State { Roam, Follow, Evade, Shot};
     private State currentState;
@@ -30,6 +32,7 @@ public class Boid : MonoBehaviour
         currentState = State.Roam;
 
         isShot = false;
+        canSeePlayer = false;
         initialized = true;
     }
 
@@ -61,7 +64,36 @@ public class Boid : MonoBehaviour
 
     void CheckState()
     {
+        switch(currentState)
+        {
+            case State.Roam:
+                if (isShot) currentState = State.Shot;
+                else if (canSeePlayer) currentState = State.Follow;
+                else if (canSeeMonster) currentState = State.Evade;
+                else currentState = State.Roam;
+                break;
 
+            case State.Follow:
+                if (isShot) currentState = State.Shot;
+                else if (canSeePlayer) currentState = State.Follow;
+                else if (canSeeMonster) currentState = State.Evade;
+                else currentState = State.Roam;
+                break;
+
+            case State.Evade:
+                if (isShot) currentState = State.Shot;
+                else if (canSeePlayer) currentState = State.Follow;
+                else if (canSeeMonster) currentState = State.Evade;
+                else currentState = State.Roam;
+                break;
+
+            case State.Shot:
+                if (isShot) currentState = State.Shot;
+                else if (canSeePlayer) currentState = State.Follow;
+                else if (canSeeMonster) currentState = State.Evade;
+                else currentState = State.Roam;
+                break;
+        }
     }
 
     void ApplyRules()
