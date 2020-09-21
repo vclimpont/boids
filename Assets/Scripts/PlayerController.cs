@@ -7,12 +7,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed = 0;
     [SerializeField] private float range = 0;
 
-
     private Rigidbody2D rb;
     private SpriteRenderer sr;
 
     private Vector2 moveDirection;
     private int nbBoids;
+    private bool hasShot;
 
     // Start is called before the first frame update
     void Start()
@@ -20,17 +20,19 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
 
-        nbBoids = 0;
+        nbBoids = 1;
+        hasShot = false;
     }
 
     // Update is called once per frame
     void Update()
     {
         CheckInputsMovement();
+        CheckInputShot();
 
-        if(Input.GetMouseButtonDown(0))
+        if (hasShot && CanShot())
         {
-            Debug.Log("SHROOM");
+            ShotBoid();
         }
     }
 
@@ -48,9 +50,31 @@ public class PlayerController : MonoBehaviour
         moveDirection = new Vector2(moveX, moveY).normalized;
     }
 
+    void CheckInputShot()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            hasShot = true;
+        }
+        else
+        {
+            hasShot = false;
+        }
+    }
+
+    bool CanShot()
+    {
+        return nbBoids > 0;
+    }
+
     void Move()
     {
         rb.velocity = new Vector2(moveDirection.x * speed, moveDirection.y * speed);
+    }
+
+    void ShotBoid()
+    {
+        Debug.Log("SHROOM");
     }
 
     void FlipSprite()
