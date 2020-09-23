@@ -305,7 +305,7 @@ public class Boid : MonoBehaviour
             rb.velocity = Vector2.zero;
             float dtForce = shootForce;
             float shotTime = 0f;
-            Vector2 targetPosition = playerPosition + shootDirection * shootForce * 0.005f;
+            Vector2 targetPosition = playerPosition + shootDirection * shootForce * 0.25f;
             Vector2 directionFromBoid = (targetPosition - (Vector2)transform.position).normalized;
             float distFromTarget = (targetPosition - (Vector2)transform.position).magnitude;
 
@@ -343,7 +343,7 @@ public class Boid : MonoBehaviour
         float dst;
         do
         {
-            rb.velocity = directionFromBoid * dtForce * Time.deltaTime;
+            rb.velocity = directionFromBoid * dtForce;
 
             dst = (targetPosition - (Vector2)transform.position).magnitude / distFromTarget;
             dtForce = shootForce * dst;

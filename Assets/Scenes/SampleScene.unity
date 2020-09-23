@@ -7369,6 +7369,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyFactory
       objectReference: {fileID: 0}
+    - target: {fileID: 192050470839596878, guid: 3623d5058fedb0840ac3e6582cc6f405,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 419851426987882036, guid: 3623d5058fedb0840ac3e6582cc6f405,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7433,6 +7438,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3263295935003746125, guid: 7546fc567b4b3ce4ba9ca8c8c0817f98,
+        type: 3}
+      propertyPath: shootForce
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 3263295935003746128, guid: 7546fc567b4b3ce4ba9ca8c8c0817f98,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -125,7 +125,7 @@ public class EnemyController : MonoBehaviour
 
     void UpgradeStats()
     {
-        if (transform.localScale.x < 5)
+        if (transform.localScale.x < 4)
         {
             transform.localScale += new Vector3(0.25f, 0.25f, 0);
         }
