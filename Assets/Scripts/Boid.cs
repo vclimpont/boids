@@ -128,7 +128,7 @@ public class Boid : MonoBehaviour
         for(int i = 0; i < closeBoids.Length; i++)          // For every close boid
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
-            if(boid != this)
+            if(boid != this && boid.currentState != State.Shot)
             {
                 avgVelocity += boid.GetVelocity();          // Calculate average velocity
                 size++;
@@ -150,7 +150,7 @@ public class Boid : MonoBehaviour
         for (int i = 0; i < closeBoids.Length; i++)         // For every close boid
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
-            if (boid != this)
+            if (boid != this && boid.currentState != State.Shot)
             {
                 avgPosition += boid.GetPosition();          // Calculate average position
                 size++;
@@ -178,7 +178,7 @@ public class Boid : MonoBehaviour
         for (int i = 0; i < closeBoids.Length; i++)
         {
             Boid boid = closeBoids[i].GetComponent<Boid>();
-            if (boid != this)
+            if (boid != this && boid.currentState != State.Shot)
             {
                 Vector2 targetPosition = (Vector2)transform.position - boid.GetPosition();
                 targetPosition = targetPosition.normalized;
@@ -264,8 +264,11 @@ public class Boid : MonoBehaviour
 
     public void StartFollowing(PlayerController player)
     {
-        this.player = player;
-        canSeePlayer = true;
+        if (currentState != State.Shot)
+        {
+            this.player = player;
+            canSeePlayer = true;
+        }
     }
 
     public void MoveTowardsPlayer()
@@ -292,20 +295,33 @@ public class Boid : MonoBehaviour
         }
     }
 
+    void StopShooting()
+    {
+        if (currentState == State.Shot)
+        {
+            isShot = false;
+            float rvx = Random.Range(1f, 4f);
+            float rvy = Random.Range(1f, 4f);
+            rb.velocity = new Vector2(rvx, rvy);
+        }
+    }
+
     public void ShotAt(Vector2 playerPosition, Vector2 shootDirection, float shootForce)
     {
-        if(!isShot)
+        if(currentState != State.Shot)
         {
             isShot = true;
             canSeePlayer = false;
             canSeeMonster = false;
+
             rb.velocity = Vector2.zero;
             float dtForce = shootForce;
-            Vector2 targetPosition = playerPosition + shootDirection * shootForce * 0.05f;
-            Debug.Log(targetPosition);
+            float shotTime = 0f;
+            Vector2 targetPosition = playerPosition + shootDirection * shootForce * 0.005f;
+            Vector2 directionFromBoid = (targetPosition - (Vector2)transform.position).normalized;
             float distFromTarget = (targetPosition - (Vector2)transform.position).magnitude;
 
-            StartCoroutine(ShotTravel(targetPosition, shootDirection, shootForce, dtForce, distFromTarget));
+            StartCoroutine(ShotTravel(targetPosition, directionFromBoid, shootForce, dtForce, distFromTarget, shotTime));
         }
     }
 
@@ -319,35 +335,32 @@ public class Boid : MonoBehaviour
         return transform.position;
     }
 
-    IEnumerator ShotTravel(Vector2 targetPosition, Vector2 shootDirection, float shootForce, float dtForce, float distFromTarget)
+    IEnumerator ShotTravel(Vector2 targetPosition, Vector2 directionFromBoid, float shootForce, float dtForce, float distFromTarget, float shotTime)
     {
         float dst;
         do
         {
-            //transform.position = Vector2.MoveTowards(transform.position, dir, dtForce * Time.deltaTime);
-            //dst = (dir - (Vector2)transform.position).magnitude / distFromTarget;
-            //dtForce = shootForce * dst;
-            rb.velocity = shootDirection * dtForce * Time.deltaTime;
+            rb.velocity = directionFromBoid * dtForce * Time.deltaTime;
+
             dst = (targetPosition - (Vector2)transform.position).magnitude / distFromTarget;
             dtForce = shootForce * dst;
+            shotTime += Time.deltaTime;
 
             yield return null;
-        } while (dst > 0.1f);
+        } while (dst > 0.1f && shotTime < 3f && isShot);
 
-
-        isShot = false;
-        float rvx = Random.Range(1f, 4f);
-        float rvy = Random.Range(1f, 4f);
-        rb.velocity = new Vector2(rvx, rvy);
-        Debug.Log(isShot);
+        StopShooting();
 
         yield return null;
     }
 
 
-    void onCollisionEnter2D(Collision2D coll)
+    void OnCollisionEnter2D(Collision2D coll)
     {
-        Debug.Log(coll.gameObject);
+        if(coll.collider.CompareTag("Obstacle"))
+        {
+            StopShooting();
+        }
     }
 
     //void OnDrawGizmos()
