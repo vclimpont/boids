@@ -37,22 +37,21 @@ public class BoidFactory : MonoBehaviour
     {
         for(int i = 0; i < numberOfBoids; i++)
         {
-            Boid boid = Instantiate(boidPrefab, Vector2.zero, Quaternion.identity).GetComponent<Boid>(); // Instantiate a new boid
-
-            float rpx = Random.Range(-10f, 10f);    // position x
-            float rpy = Random.Range(-10f, 10f);    // position y
-            float rvx = Random.Range(-1f, 1f);      // direction x
-            float rvy = Random.Range(-1f, 1f);      // direction y 
-            float rs = Random.Range(1f, 4f);        // speed
-
-            boid.Initialize(rs, new Vector2(rpx, rpy), new Vector2(rvx, rvy), this); // Set random position and random velocity
+            float rpx = Random.Range(-boundX, boundX);    // position x
+            float rpy = Random.Range(-boundY, boundY);    // position y
+            InstantiateBoid(new Vector2(rpx, rpy));
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void InstantiateBoid(Vector2 position)
     {
-        
+        Boid boid = Instantiate(boidPrefab, Vector2.zero, Quaternion.identity).GetComponent<Boid>(); // Instantiate a new boid
+
+        float rvx = Random.Range(-1f, 1f);      // direction x
+        float rvy = Random.Range(-1f, 1f);      // direction y 
+        float rs = Random.Range(1f, 4f);        // speed
+
+        boid.Initialize(rs, position, new Vector2(rvx, rvy), this); // Set random position and random velocity
     }
 
     public float GetRange()

@@ -43,7 +43,7 @@ public class ObstacleChecker
             if (dirToCast != Vector2.zero)
             {
                 Debug.DrawLine(go.transform.position, (Vector2)go.transform.position + (dirToCast * range), Color.green, Time.deltaTime);
-                rb.velocity = dirToCast * rb.velocity.magnitude;// * 0.7f) + (rb.velocity * 0.3f);
+                rb.velocity = dirToCast * rb.velocity.magnitude;
                 break;
             }
 
@@ -51,7 +51,7 @@ public class ObstacleChecker
             if (dirToCast != Vector2.zero)
             {
                 Debug.DrawLine(go.transform.position, (Vector2)go.transform.position + (dirToCast * range), Color.green, Time.deltaTime);
-                rb.velocity = dirToCast * rb.velocity.magnitude;// * 0.7f) + (rb.velocity * 0.3f);
+                rb.velocity = dirToCast * rb.velocity.magnitude;
                 break;
             }
         }

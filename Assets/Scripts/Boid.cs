@@ -13,13 +13,14 @@ public class Boid : MonoBehaviour
     private bool initialized = false;
     private int boidLayer;
     private PlayerController player;
+    private EnemyController enemy;
     private ObstacleChecker obsChecker;
 
     private bool isShot;
     private bool canSeePlayer;
-    private bool canSeeMonster;
+    private bool canSeeEnemy;
 
-    private enum State { Roam, Follow, Evade, Shot};
+    public enum State { Roam, Follow, Evade, Shot};
     private State currentState;
 
 
@@ -34,7 +35,7 @@ public class Boid : MonoBehaviour
         rb.velocity = dir * speed;
         currentState = State.Roam;
 
-        obsChecker = new ObstacleChecker(this.gameObject, bfactory.GetRange() * 3f);
+        obsChecker = new ObstacleChecker(gameObject, bfactory.GetRange() * 3f);
 
         isShot = false;
         canSeePlayer = false;
@@ -53,7 +54,7 @@ public class Boid : MonoBehaviour
                     obsChecker.CheckForObstacles();
                     LimitVelocity();
                     ApplyRules();
-                    //BoundVelocity();
+                    ResetVelocityIfTooSlow();
                     break;
                 case State.Follow:
                     obsChecker.CheckForObstacles();
@@ -62,9 +63,13 @@ public class Boid : MonoBehaviour
                     MoveTowardsPlayer();
                     CheckDistanceFromPlayer();
                     break;
-               // case State.Shot:
-
-
+                case State.Evade:
+                    obsChecker.CheckForObstacles();
+                    LimitVelocity();
+                    ApplyRules();
+                    MoveAwayFromEnemy();
+                    CheckDistanceFromEnemy();
+                    break;
             }
         }
     }
@@ -86,28 +91,28 @@ public class Boid : MonoBehaviour
             case State.Roam:
                 if (isShot) currentState = State.Shot;
                 else if (canSeePlayer) currentState = State.Follow;
-                else if (canSeeMonster) currentState = State.Evade;
+                else if (canSeeEnemy) currentState = State.Evade;
                 else currentState = State.Roam;
                 break;
 
             case State.Follow:
                 if (isShot) currentState = State.Shot;
                 else if (canSeePlayer) currentState = State.Follow;
-                else if (canSeeMonster) currentState = State.Evade;
+                else if (canSeeEnemy) currentState = State.Evade;
                 else currentState = State.Roam;
                 break;
 
             case State.Evade:
                 if (isShot) currentState = State.Shot;
                 else if (canSeePlayer) currentState = State.Follow;
-                else if (canSeeMonster) currentState = State.Evade;
+                else if (canSeeEnemy) currentState = State.Evade;
                 else currentState = State.Roam;
                 break;
 
             case State.Shot:
                 if (isShot) currentState = State.Shot;
                 else if (canSeePlayer) currentState = State.Follow;
-                else if (canSeeMonster) currentState = State.Evade;
+                else if (canSeeEnemy) currentState = State.Evade;
                 else currentState = State.Roam;
                 break;
         }
@@ -203,16 +208,7 @@ public class Boid : MonoBehaviour
         }
     }
 
-    public void StartFollowing(PlayerController player)
-    {
-        if (currentState != State.Shot)
-        {
-            this.player = player;
-            canSeePlayer = true;
-        }
-    }
-
-    public void MoveTowardsPlayer()
+    void MoveTowardsPlayer()
     {
         Vector2 dir = player.GetPosition() - (Vector2)transform.position;
 
@@ -236,14 +232,65 @@ public class Boid : MonoBehaviour
         }
     }
 
+    void MoveAwayFromEnemy()
+    {
+        Vector2 dir = enemy.GetPosition() - (Vector2)transform.position;
+
+        if (dir.magnitude <= enemy.GetRange())
+        {
+            dir = dir.normalized;
+            rb.velocity += (-dir * enemy.GetFearForce());
+        }
+        else
+        {
+            canSeeEnemy = false;
+        }
+    }
+
+    void CheckDistanceFromEnemy()
+    {
+        float dst = ((Vector2)transform.position - enemy.GetPosition()).magnitude;
+        if (dst > enemy.GetRange())
+        {
+            canSeeEnemy = false;
+        }
+    }
+
     void StopShooting()
     {
         if (currentState == State.Shot)
         {
             isShot = false;
+            rb.velocity = Vector2.zero;
+            ResetVelocityIfTooSlow();
+        }
+    }
+
+    void ResetVelocityIfTooSlow()
+    {
+        if(rb.velocity.magnitude < 1)
+        {
             float rvx = Random.Range(1f, 4f);
             float rvy = Random.Range(1f, 4f);
             rb.velocity = new Vector2(rvx, rvy);
+        }
+    }
+
+    public void StartFollowing(PlayerController player)
+    {
+        if (currentState != State.Shot)
+        {
+            this.player = player;
+            canSeePlayer = true;
+        }
+    }
+
+    public void StartEvading(EnemyController enemy)
+    {
+        if (currentState != State.Shot)
+        {
+            this.enemy = enemy;
+            canSeeEnemy = true;
         }
     }
 
@@ -253,7 +300,7 @@ public class Boid : MonoBehaviour
         {
             isShot = true;
             canSeePlayer = false;
-            canSeeMonster = false;
+            canSeeEnemy = false;
 
             rb.velocity = Vector2.zero;
             float dtForce = shootForce;
@@ -276,6 +323,21 @@ public class Boid : MonoBehaviour
         return transform.position;
     }
 
+    public State GetCurrentState()
+    { 
+        return currentState; 
+    }
+
+    public bool CompareState(State state)
+    {
+        return currentState == state;
+    }
+
+    public BoidFactory GetBoidFactory()
+    {
+        return bfactory;
+    }
+
     IEnumerator ShotTravel(Vector2 targetPosition, Vector2 directionFromBoid, float shootForce, float dtForce, float distFromTarget, float shotTime)
     {
         float dst;
@@ -296,20 +358,13 @@ public class Boid : MonoBehaviour
     }
 
 
-    void OnCollisionEnter2D(Collision2D coll)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        if(coll.collider.CompareTag("Obstacle"))
+        Collider2D _col = collision.collider;
+
+        if(_col.CompareTag("Obstacle") || _col.CompareTag("Enemy"))
         {
             StopShooting();
         }
     }
-
-    //void OnDrawGizmos()
-    //{
-    //    if(initialized)
-    //    {
-    //        Gizmos.DrawWireSphere(transform.position, bfactory.GetRange());
-    //    }
-    //}
-
 }
