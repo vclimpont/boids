@@ -57,7 +57,10 @@ public class Boid : MonoBehaviour
                     LimitVelocity();
                     ApplyRules();
                     MoveTowardsPlayer();
+                    CheckDistanceFromPlayer();
                     break;
+               // case State.Shot:
+
 
             }
         }
@@ -259,30 +262,6 @@ public class Boid : MonoBehaviour
         }
     }
 
-    void BoundVelocity()
-    {
-        float boundX = bfactory.GetBoundX();
-        float boundY = bfactory.GetBoundY();
-
-        if(transform.position.x < -boundX)
-        {
-            transform.position = new Vector2(boundX, transform.position.y);
-        }
-        else if(transform.position.x > boundX)
-        {
-            transform.position = new Vector2(-boundX, transform.position.y);
-        }
-
-        if (transform.position.y < -boundY)
-        {
-            transform.position = new Vector2(transform.position.x, boundY);
-        }
-        else if (transform.position.y > boundY)
-        {
-            transform.position = new Vector2(transform.position.x, -boundY);
-        }
-    }
-
     public void StartFollowing(PlayerController player)
     {
         this.player = player;
@@ -304,16 +283,29 @@ public class Boid : MonoBehaviour
         }
     }
 
-    public void ShotAt(Vector2 direction, float shootForce)
+    void CheckDistanceFromPlayer()
+    {
+        float dst = ((Vector2)transform.position - player.GetPosition()).magnitude;
+        if(dst > player.GetRange())
+        {
+            canSeePlayer = false;
+        }
+    }
+
+    public void ShotAt(Vector2 playerPosition, Vector2 shootDirection, float shootForce)
     {
         if(!isShot)
         {
             isShot = true;
-            //rb.velocity = Vector2.zero;
-            //float dtForce = shootForce;
-            //float distFromTarget = (direction - (Vector2)transform.position).magnitude; 
+            canSeePlayer = false;
+            canSeeMonster = false;
+            rb.velocity = Vector2.zero;
+            float dtForce = shootForce;
+            Vector2 targetPosition = playerPosition + shootDirection * shootForce * 0.05f;
+            Debug.Log(targetPosition);
+            float distFromTarget = (targetPosition - (Vector2)transform.position).magnitude;
 
-            //StartCoroutine(ShotTravel(direction, shootForce, dtForce, distFromTarget));
+            StartCoroutine(ShotTravel(targetPosition, shootDirection, shootForce, dtForce, distFromTarget));
         }
     }
 
@@ -327,15 +319,18 @@ public class Boid : MonoBehaviour
         return transform.position;
     }
 
-    IEnumerator ShotTravel(Vector2 dir, float shootForce, float dtForce, float distFromTarget)
+    IEnumerator ShotTravel(Vector2 targetPosition, Vector2 shootDirection, float shootForce, float dtForce, float distFromTarget)
     {
         float dst;
         do
         {
-
-            transform.position = Vector2.MoveTowards(transform.position, dir, dtForce * Time.deltaTime);
-            dst = (dir - (Vector2)transform.position).magnitude / distFromTarget;
+            //transform.position = Vector2.MoveTowards(transform.position, dir, dtForce * Time.deltaTime);
+            //dst = (dir - (Vector2)transform.position).magnitude / distFromTarget;
+            //dtForce = shootForce * dst;
+            rb.velocity = shootDirection * dtForce * Time.deltaTime;
+            dst = (targetPosition - (Vector2)transform.position).magnitude / distFromTarget;
             dtForce = shootForce * dst;
+
             yield return null;
         } while (dst > 0.1f);
 
@@ -350,7 +345,10 @@ public class Boid : MonoBehaviour
     }
 
 
-    
+    void onCollisionEnter2D(Collision2D coll)
+    {
+        Debug.Log(coll.gameObject);
+    }
 
     //void OnDrawGizmos()
     //{

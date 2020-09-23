@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
         Vector2 dir = shotPosition - (Vector2)transform.position;
         dir = dir.normalized;
-        boid.ShotAt(shotPosition, shootForce);
+        boid.ShotAt(transform.position, dir, shootForce);
     }
 
     void FlipSprite()
