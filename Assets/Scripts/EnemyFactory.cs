@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class EnemyFactory : MonoBehaviour
 {
+    [SerializeField] UIEnemy canvas = null;
     [SerializeField] GameObject enemyPrefab = null;
 
     [Header("Enemy settings")]
-    [SerializeField] private float health = 0f;
+    [SerializeField] private int health = 0;
     [SerializeField] private float minSpeed = 0f;
     [SerializeField] private float maxSpeed = 0f;
     [SerializeField] private float range = 0f;
@@ -34,6 +35,8 @@ public class EnemyFactory : MonoBehaviour
             Vector2 dir = new Vector2(rvx, rvy);
 
             enemy.Initialize(health, rs, range, fearForce, dir);
+
+            canvas.AddUIToEnemy(enemy);
 
             yield return new WaitForSeconds(spawnRate);
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    private float health;
+    private int health;
     private float speed;
     private float range;
     private float fearForce;
@@ -22,7 +22,7 @@ public class EnemyController : MonoBehaviour
     private bool initialized = false;
     private bool isStun = false;
 
-    public void Initialize(float health, float speed, float range, float fearForce, Vector2 dir)
+    public void Initialize(int health, float speed, float range, float fearForce, Vector2 dir)
     {
         sr = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
@@ -76,7 +76,9 @@ public class EnemyController : MonoBehaviour
             Vector2 targetDirection = avgPosition - (Vector2)transform.position;        // Get the direction from current position to the average position calculated and normalize it
             targetDirection = targetDirection.normalized;
 
-            rb.velocity = targetDirection * speed;   // Add an amount of 
+            Vector2 currentDirection = rb.velocity.normalized;
+            Vector2 newDirection = (currentDirection + 0.5f * targetDirection).normalized;
+            rb.velocity = newDirection * speed;   // Add an amount of 
         }
     }
 
@@ -169,6 +171,11 @@ public class EnemyController : MonoBehaviour
     public float GetFearForce()
     {
         return fearForce;
+    }
+
+    public int GetHealth()
+    {
+        return health;
     }
 
     IEnumerator GetStunned()
