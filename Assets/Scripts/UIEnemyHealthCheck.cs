@@ -35,7 +35,6 @@ public class UIEnemyHealthCheck : MonoBehaviour
         if(enemyHealth > 10 && enemyHealth < healthLimit)
         {
             textLabel.fontSize = 18 + (enemyHealth - 10);
-            offset = new Vector2(-0.5f, 1f) * (2f / (healthLimit - enemyHealth));
 
             float f = (5f - (healthLimit - enemyHealth)) / 4f;
             textLabel.color = Color.Lerp(Color.green, Color.red, f);

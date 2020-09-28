@@ -45,12 +45,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 855228577228073227, guid: f1f83be48abc21f43b337b439d0f6ad2,
     type: 3}
-  numberOfBoids: 50
+  numberOfBoids: 20
   range: 1
   maxVelocity: 2.5
   velLimitFactor: 0.701
   separationFactor: 1.5
   alignmentFactor: 2.5
   cohesionFactor: 2
-  boundX: 10
-  boundY: 10
+  boundX: -2
+  boundY: 2

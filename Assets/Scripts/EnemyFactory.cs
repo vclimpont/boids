@@ -14,12 +14,28 @@ public class EnemyFactory : MonoBehaviour
     [SerializeField] private float range = 0f;
     [SerializeField] private float fearForce = 0f;
     [SerializeField] private float spawnRate = 0f;
+    [SerializeField] private float spawnDelay = 0f;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(SpawnEnemies());
+        InvokeRepeating("SpawnEnemy", spawnDelay, spawnRate);
+    }
+
+    void SpawnEnemy()
+    {
+        GameObject go = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+        EnemyController enemy = go.GetComponent<EnemyController>();
+
+        float rvx = Random.Range(-1f, 1f);
+        float rvy = Random.Range(-1f, 1f);
+        float rs = Random.Range(minSpeed, maxSpeed);
+        Vector2 dir = new Vector2(rvx, rvy);
+
+        enemy.Initialize(health, rs, range, fearForce, dir);
+
+        canvas.AddUIToEnemy(enemy);
     }
 
     IEnumerator SpawnEnemies()
