@@ -43,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030085f7480b4764ca76c69a69f6c94e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvas: {fileID: 0}
   enemyPrefab: {fileID: 6241165537006707601, guid: b60959a61e1db434d93122b7c8d59802,
     type: 3}
   health: 10
@@ -50,4 +51,4 @@ MonoBehaviour:
   maxSpeed: 4
   range: 5
   fearForce: 0.25
-  spawnRate: 10
+  spawnRate: 20

@@ -39,7 +39,7 @@ public class BoidFactory : MonoBehaviour
         {
             float rpx = Random.Range(-boundX, boundX);    // position x
             float rpy = Random.Range(-boundY, boundY);    // position y
-            InstantiateBoid(new Vector2(rpx, rpy));
+            InstantiateBoid(new Vector2(transform.position.x + rpx, transform.position.y + rpy));
         }
     }
 
