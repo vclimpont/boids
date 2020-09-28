@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -113,6 +114,11 @@ public class PlayerController : MonoBehaviour
         boid.ShotAt(transform.position, dir, shootForce);
     }
 
+    void Die()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     void FlipSprite()
     {
         sr.flipX = (rb.velocity.x < 0);
@@ -138,6 +144,14 @@ public class PlayerController : MonoBehaviour
         if(attracting)
         {
             Gizmos.DrawWireSphere(transform.position, range);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if(col.collider.CompareTag("Enemy"))
+        {
+            Die();
         }
     }
 }
