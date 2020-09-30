@@ -30,6 +30,7 @@ public class BoidFactory : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameManager.AddBoids(numberOfBoids);
         GenerateBoids();
     }
 

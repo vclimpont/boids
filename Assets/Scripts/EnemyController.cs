@@ -11,6 +11,7 @@ public class EnemyController : MonoBehaviour
     private float fearForce;
     private int boidsEaten;
     private float stunDuration;
+    private int scoreToGive;
 
     private SpriteRenderer sr;
     private Rigidbody2D rb;
@@ -35,6 +36,7 @@ public class EnemyController : MonoBehaviour
         rb.velocity = dir * speed;
         boidsEaten = 0;
         stunDuration = 1.5f;
+        scoreToGive = health;
 
         obsChecker = new ObstacleChecker(gameObject, range);
 
@@ -92,6 +94,8 @@ public class EnemyController : MonoBehaviour
         Destroy(boid.gameObject);
         UpgradeStats();
         boidsEaten++;
+        scoreToGive++;
+        GameManager.RemoveBoids(1);
     }
 
     void SpitBoids()
@@ -102,6 +106,7 @@ public class EnemyController : MonoBehaviour
             float ry = Random.Range(-1f, 1f);
             Vector2 boidPosition = new Vector2(transform.position.x + rx, transform.position.y + ry);
             bFactory.InstantiateBoid(boidPosition);
+            GameManager.AddBoids(1);
         }
     }
 
@@ -122,6 +127,7 @@ public class EnemyController : MonoBehaviour
     void Die()
     {
         SpitBoids();
+        GameManager.AddScore(scoreToGive);
         Destroy(gameObject);
     }
 
