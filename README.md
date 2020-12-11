@@ -27,7 +27,7 @@ Ogres spawn randomly and permanently from the doors of the room. Their behaviour
 
 The game ends if the player gets hit by an ogre or if ogres eat every mushrooms in the room.
 
-![Game view]()
+![Game view](https://github.com/vclimpont/boids/blob/master/Images/gameview.PNG)
 
 ## Free to use assets
 
