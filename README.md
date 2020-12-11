@@ -17,7 +17,7 @@ They are also able to find a free path when they face an obstacle and their beha
 * If they are in an ogre range, they try to avoid it. (state EVADE)
 * If they are used as projectiles by the player, every states are blocked during the shot. (state SHOT)
 
-##Ogres
+## Ogres
 
 Ogres spawn randomly and permanently from the doors of the room. Their behaviour is implemented such as :
 * They are attracted by the largest group of mushrooms.
@@ -26,4 +26,12 @@ Ogres spawn randomly and permanently from the doors of the room. Their behaviour
 * If they die, they release every eaten mushrooms.
 
 The game ends if the player gets hit by an ogre or if ogres eat every mushrooms in the room.
+
+![Game view]()
+
+## Free to use assets
+
+16x16 Enchanted Forest Characters - Superdark : https://superdark.itch.io/enchanted-forest-characters
+
+16x16 Dungeon Tileset - 0x72 : https://0x72.itch.io/16x16-dungeon-tileset
 
